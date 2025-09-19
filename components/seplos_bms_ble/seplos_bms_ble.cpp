@@ -931,14 +931,14 @@ void SeplosBmsBle::decode_single_machine_data_(const std::vector<uint8_t> &data)
     float cell_temperature = (seplos_get_16bit(offset + 1 + (i * 2)) - 2731) * 0.1f;
     this->publish_state_(this->temperatures_[i].temperature_sensor_, cell_temperature);
     total_cell_temperature += cell_temperature;
-    if(i>=3)
-    {
-      snprintf(cell_entry, sizeof(cell_entry), "\"t%d\":%d", i+1,(seplos_get_16bit(offset + 1 + (i * 2)) - 2731));
-    }
-    else
+    if((i>=2))
     {
       /* ignore t3 */
       snprintf(cell_entry, sizeof(cell_entry), "\"t%d\":%d", i+1+1,(seplos_get_16bit(offset + 1 + (i * 2)) - 2731));
+    }
+    else
+    {
+      snprintf(cell_entry, sizeof(cell_entry), "\"t%d\":%d", i+1,(seplos_get_16bit(offset + 1 + (i * 2)) - 2731));
     }
     strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
     strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
@@ -999,10 +999,10 @@ void SeplosBmsBle::decode_single_machine_data_(const std::vector<uint8_t> &data)
   this->publish_state_(this->port_voltage_sensor_, seplos_get_16bit(offset + 17) * 0.01f);
 
 
-  snprintf(cell_entry, sizeof(cell_entry), "\"soc\":%d", (int) seplos_get_16bit(offset + 9));
+  snprintf(cell_entry, sizeof(cell_entry), "\"soc\":%d", (int) seplos_get_16bit(offset + 9)/10);
   strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
   strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
-  snprintf(cell_entry, sizeof(cell_entry), "\"cap\":%d", (int) seplos_get_16bit(offset + 11));
+  snprintf(cell_entry, sizeof(cell_entry), "\"cap\":%d", (int) seplos_get_16bit(offset + 11)*10);
   strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
   strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
   snprintf(cell_entry, sizeof(cell_entry), "\"cycle\":%d", (int) seplos_get_16bit(offset + 13));
@@ -1061,7 +1061,7 @@ void SeplosBmsBle::decode_single_machine_data_(const std::vector<uint8_t> &data)
   this->publish_state_(this->current_limit_switch_, switch_status & 0x04);
   this->publish_state_(this->heating_switch_, switch_status & 0x08);
 
-  snprintf(cell_entry, sizeof(cell_entry), "\"chg\": %d", (int)(switch_status & 0x02));
+  snprintf(cell_entry, sizeof(cell_entry), "\"chg\": %d", (int)((switch_status & 0x02)/0x02));
   strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
   strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
 
