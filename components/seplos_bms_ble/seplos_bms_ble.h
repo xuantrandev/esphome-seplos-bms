@@ -158,8 +158,10 @@ class SeplosBmsBle : public esphome::ble_client::BLEClientNode, public PollingCo
   bool get_online_status(){return this->online_status_;};
   void set_fastdata(bool fastdata){this->fastdata_ = fastdata;};
   void set_data_text_sensor(text_sensor::TextSensor *data_text_sensor) { data_text_sensor_ = data_text_sensor; }
+  bool is_wrong_mac() { bool tmp = wrong_mac_; wrong_mac_ = false; return tmp; };
 
  protected:
+  bool wrong_mac_{false};
   bool online_status_{false};
   bool fastdata_{false};
   uint64_t mac_address_;

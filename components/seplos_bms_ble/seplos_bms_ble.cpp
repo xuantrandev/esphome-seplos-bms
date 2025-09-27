@@ -175,6 +175,8 @@ void SeplosBmsBle::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t
       if (char_notify == nullptr) {
         ESP_LOGE(TAG, "[%s] No notify service found at device, not an Seplos v2 BMS..?",
                  this->parent_->address_str().c_str());
+        this->wrong_mac_ = true;
+        
         break;
       }
       this->char_notify_handle_ = char_notify->handle;
