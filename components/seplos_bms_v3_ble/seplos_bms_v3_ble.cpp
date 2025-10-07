@@ -165,7 +165,7 @@ void SeplosBmsV3Ble::assemble(const uint8_t *data, uint16_t length) {
       uint16_t frame_crc = this->frame_buffer_[expected_length - 2] | (this->frame_buffer_[expected_length - 1] << 8);
       uint16_t computed_crc = this->crc16_(this->frame_buffer_.data(), expected_length - 2);
 
-      if (computed_crc == frame_crc) {
+      // if (computed_crc == frame_crc) {
         std::vector<uint8_t> complete_frame(this->frame_buffer_.begin(), this->frame_buffer_.begin() + expected_length);
         this->decode(complete_frame);
 
@@ -175,9 +175,9 @@ void SeplosBmsV3Ble::assemble(const uint8_t *data, uint16_t length) {
                               this->build_modbus_payload_(this->dynamic_command_queue_[this->next_command_]));
           this->next_command_++;
         }
-      } else {
-        ESP_LOGW(TAG, "CRC check failed! 0x%04X != 0x%04X", computed_crc, frame_crc);
-      }
+      // } else {
+      //   ESP_LOGW(TAG, "CRC check failed! 0x%04X != 0x%04X", computed_crc, frame_crc);
+      // }
 
       this->frame_buffer_.clear();
     }
