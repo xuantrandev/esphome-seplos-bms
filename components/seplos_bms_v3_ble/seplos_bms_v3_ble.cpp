@@ -52,7 +52,7 @@ static const SeplosV3Command SEPLOS_V3_SYSTEM_COMMANDS[] = {
 static const SeplosV3Command SEPLOS_V3_PACK_COMMANDS[] = {
     {0x00, SEPLOS_V3_CMD_READ_04, SEPLOS_V3_REG_PIA_START, SEPLOS_V3_PIA_LENGTH},
     {0x00, SEPLOS_V3_CMD_READ_04, SEPLOS_V3_REG_PIB_START, SEPLOS_V3_PIB_LENGTH},
-    {0x00, SEPLOS_V3_CMD_READ_01, SEPLOS_V3_REG_PIC_START, SEPLOS_V3_PIC_LENGTH},
+    // {0x00, SEPLOS_V3_CMD_READ_01, SEPLOS_V3_REG_PIC_START, SEPLOS_V3_PIC_LENGTH},
 };
 
 void SeplosBmsV3Ble::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if,
@@ -623,9 +623,9 @@ void SeplosBmsV3Ble::build_dynamic_command_queue_() {
   }
 
   // Add system commands (always present)
-  for (const auto &cmd : SEPLOS_V3_SYSTEM_COMMANDS) {
-    this->dynamic_command_queue_.push_back(cmd);
-  }
+  // for (const auto &cmd : SEPLOS_V3_SYSTEM_COMMANDS) {
+  //   this->dynamic_command_queue_.push_back(cmd);
+  // }
 
   // Add pack-specific commands only for registered pack sensors
   // This ensures commands are only sent to addresses that have corresponding pack components

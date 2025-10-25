@@ -95,19 +95,19 @@ void SeplosBmsV3BlePack::decode_pack_pia_data_(const std::vector<uint8_t> &data)
   char json_buffer[300] = {0};
   char cell_entry[32];
   snprintf(json_buffer, sizeof(json_buffer), "{");
-  snprintf(cell_entry, sizeof(cell_entry), "\"vbat\":%d", seplos_get_16bit(0));
+  snprintf(cell_entry, sizeof(cell_entry), "\"vbat\":%d", seplos_get_16bit(0)/10);
   strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
   strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
 
-  snprintf(cell_entry, sizeof(cell_entry), "\"cur\":%d",  (int16_t) seplos_get_16bit(2));
+  snprintf(cell_entry, sizeof(cell_entry), "\"cur\":%d",  (int16_t) seplos_get_16bit(2)/10);
   strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
   strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
 
-  snprintf(cell_entry, sizeof(cell_entry), "\"p\":%d", (int) seplos_get_16bit(0)*(int16_t) seplos_get_16bit(2));
+  snprintf(cell_entry, sizeof(cell_entry), "\"p\":%d", (int) seplos_get_16bit(0)*(int16_t) seplos_get_16bit(2)/10000);
   strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
   strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
 
-  snprintf(cell_entry, sizeof(cell_entry), "\"soc\":%d",  seplos_get_16bit(10));
+  snprintf(cell_entry, sizeof(cell_entry), "\"soc\":%d",  seplos_get_16bit(10)/10);
   strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
   strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
 
@@ -159,9 +159,9 @@ void SeplosBmsV3BlePack::decode_pack_pib_data_(const std::vector<uint8_t> &data)
   for (uint8_t i = 0; i < 4; i++) {
     this->publish_state_(this->pack_temperature_sensors_[i], (seplos_get_16bit(32 + i * 2) - 2731.5f) * 0.1f);
 #ifdef WEB_VERSION
-    if(i>=3)
+    if(i>=2)
     {
-      snprintf(cell_entry, sizeof(cell_entry), "\"t%d\":%d", i,(seplos_get_16bit(32 + i * 2) - 2731.5f));
+      snprintf(cell_entry, sizeof(cell_entry), "\"t%d\":%d", i+2,(seplos_get_16bit(32 + i * 2) - 2731.5f));
     }
     else
     {
