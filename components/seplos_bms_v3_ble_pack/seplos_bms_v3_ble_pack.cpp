@@ -103,6 +103,10 @@ void SeplosBmsV3BlePack::decode_pack_pia_data_(const std::vector<uint8_t> &data)
   strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
   strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
 
+  snprintf(cell_entry, sizeof(cell_entry), "\"cap\":%d",  (int16_t) seplos_get_16bit(6)*10);
+  strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
+  strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
+
   snprintf(cell_entry, sizeof(cell_entry), "\"p\":%d", (int) seplos_get_16bit(0)*(int16_t) seplos_get_16bit(2)/10000);
   strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
   strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
@@ -153,6 +157,16 @@ void SeplosBmsV3BlePack::decode_pack_pib_data_(const std::vector<uint8_t> &data)
   }
 #ifdef WEB_VERSION
   strncat(json_buffer, "],", sizeof(json_buffer) - strlen(json_buffer) - 1);
+  // FET temperature (bytes 50-51) if available
+  if (data.size() >= 50) {
+    uint16_t fet_temperature_raw = seplos_get_16bit(50);
+    float fet_temperature_celsius = (fet_temperature_raw - 2731.5f) * 0.1f;
+    ESP_LOGD(TAG, "  FET temperature: %d (%.1f °C)", fet_temperature_raw, fet_temperature_celsius);
+    // TODO: Add FET temperature sensor when available
+    snprintf(cell_entry, sizeof(cell_entry), "\"t0\":%d",  (int)(fet_temperature_celsius*10));
+    strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
+    strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
+  }
 #endif
 
   // Cell temperatures (32-39, 4 sensors * 2 bytes each)
@@ -161,12 +175,12 @@ void SeplosBmsV3BlePack::decode_pack_pib_data_(const std::vector<uint8_t> &data)
 #ifdef WEB_VERSION
     if(i>=2)
     {
-      snprintf(cell_entry, sizeof(cell_entry), "\"t%d\":%d", i+2,(seplos_get_16bit(32 + i * 2) - 2731.5f));
+      snprintf(cell_entry, sizeof(cell_entry), "\"t%d\":%d", i+2,(int)(seplos_get_16bit(32 + i * 2) - 2731.5f));
     }
     else
     {
       /* ignore t3 */
-      snprintf(cell_entry, sizeof(cell_entry), "\"t%d\":%d", i+1,(seplos_get_16bit(32 + i * 2) - 2731.5f));
+      snprintf(cell_entry, sizeof(cell_entry), "\"t%d\":%d", i+1,(int)(seplos_get_16bit(32 + i * 2) - 2731.5f));
     }
     strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
     if(i!=4-1)
@@ -183,6 +197,8 @@ void SeplosBmsV3BlePack::decode_pack_pib_data_(const std::vector<uint8_t> &data)
     ESP_LOGD(TAG, "  Environment temperature: %d (%.1f °C)", env_temperature_raw, env_temperature_celsius);
     // TODO: Add environment temperature sensor when available
   }
+
+
 #ifdef WEB_VERSION
   strncat(json_buffer, "}", sizeof(json_buffer) - strlen(json_buffer) - 1);
   if((this->data_text_sensor_ != nullptr )&& (this->fastdata_)) {
