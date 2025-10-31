@@ -175,6 +175,10 @@ void SeplosBmsV3Ble::assemble(const uint8_t *data, uint16_t length) {
                               this->build_modbus_payload_(this->dynamic_command_queue_[this->next_command_]));
           this->next_command_++;
         }
+        else
+        {
+          ESP_LOGD(TAG, "All commands processed");
+        }
       // } else {
       //   ESP_LOGW(TAG, "CRC check failed! 0x%04X != 0x%04X", computed_crc, frame_crc);
       // }
@@ -193,6 +197,18 @@ void SeplosBmsV3Ble::decode(const std::vector<uint8_t> &data) {
 
   if (function & 0x80) {
     ESP_LOGW(TAG, "Error response from device 0x%02X, error code: 0x%02X", device, data[2]);
+    // if( this->next_command_ < this->dynamic_command_queue_.size()) {
+    //   this->send_command_(this->dynamic_command_queue_[this->next_command_].function,
+    //                       this->build_modbus_payload_(this->dynamic_command_queue_[this->next_command_]));
+    //   this->next_command_++;
+    // }
+    if( (0x02 == device) && (0x03 == data[2]) )
+    {
+       ESP_LOGW(TAG, "remove build command for unsupported pack");
+      if (this->dynamic_command_queue_.size() >= 2) {
+        this->dynamic_command_queue_.erase(this->dynamic_command_queue_.end() - 2, this->dynamic_command_queue_.end());
+      }
+    }
     return;
   }
 
