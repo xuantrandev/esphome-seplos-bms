@@ -86,11 +86,18 @@ void SeplosBmsV3BlePack::decode_pack_pia_data_(const std::vector<uint8_t> &data)
     ESP_LOGW(TAG, "PIA data too short: %d bytes", data.size());
     return;
   }
-
+  this->online_status_ = true;
   this->publish_state_(this->pack_voltage_sensor_, seplos_get_16bit(0) * 0.01f);
   this->publish_state_(this->pack_current_sensor_, (int16_t) seplos_get_16bit(2) * 0.01f);
   this->publish_state_(this->pack_battery_level_sensor_, seplos_get_16bit(10) * 0.1f);
   this->publish_state_(this->pack_cycle_sensor_, (float) seplos_get_16bit(14));
+
+  this->vbat100_ = seplos_get_16bit(0);
+  this->current10_ = (int16_t) seplos_get_16bit(2);
+  this->soc_ = seplos_get_16bit(10)/10;
+  this->cycles_ = seplos_get_16bit(14);
+  this->capacity_ = seplos_get_16bit(6)*10;
+  this->soh_ = 100; // default 100 for v3 pack
 #ifdef WEB_VERSION
   char json_buffer[300] = {0};
   char cell_entry[32];
@@ -146,6 +153,17 @@ void SeplosBmsV3BlePack::decode_pack_pib_data_(const std::vector<uint8_t> &data)
   // Cell voltages (0-31, 16 cells * 2 bytes each)
   for (uint8_t i = 0; i < 16; i++) {
     this->publish_state_(this->pack_cell_voltage_sensors_[i], seplos_get_16bit(i * 2) * 0.001f);
+    if(this->maxcellmv_ < seplos_get_16bit(i * 2))
+    {
+      this->maxcellmv_ = seplos_get_16bit(i * 2);
+      this->maxcellidx_ = i + 1;
+    }
+    if((this->mincellmv_ < 0) || (this->mincellmv_ > seplos_get_16bit(i * 2)))
+    {
+      this->mincellmv_ = seplos_get_16bit(i * 2);
+      this->mincellidx_ = i + 1;
+    }
+
 #ifdef WEB_VERSION
     snprintf(cell_entry, sizeof(cell_entry), "%d", (int) seplos_get_16bit(i * 2));
     strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
@@ -172,6 +190,14 @@ void SeplosBmsV3BlePack::decode_pack_pib_data_(const std::vector<uint8_t> &data)
   // Cell temperatures (32-39, 4 sensors * 2 bytes each)
   for (uint8_t i = 0; i < 4; i++) {
     this->publish_state_(this->pack_temperature_sensors_[i], (seplos_get_16bit(32 + i * 2) - 2731.5f) * 0.1f);
+    if(this->maxtemp10_ < (seplos_get_16bit(32 + i * 2) - 2731.5f)*10)
+    {
+      this->maxtemp10_ = (seplos_get_16bit(32 + i * 2) - 2731.5f)*10;
+    }
+    if((this->mintemp10_ < 0) || (this->mintemp10_ > (seplos_get_16bit(32 + i * 2) - 2731.5f)*10))
+    {
+      this->mintemp10_ = (seplos_get_16bit(32 + i * 2) - 2731.5f)*10;
+    }
 #ifdef WEB_VERSION
     if(i>=2)
     {

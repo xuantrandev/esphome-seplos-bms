@@ -922,6 +922,11 @@ void SeplosBmsBle::decode_single_machine_data_(const std::vector<uint8_t> &data)
     this->publish_state_(this->average_cell_voltage_sensor_, total_cell_voltage / cells);
   }
 
+  this->maxcellmv_ = (int)(this->max_cell_voltage_ * 1000);
+  this->mincellmv_ = (int)(this->min_cell_voltage_ * 1000);
+  this->mincellidx_ = this->min_voltage_cell_;
+  this->maxcellidx_ = this->max_voltage_cell_;
+
   size_t offset = 7 + 3 + (cells * 2);  // 7 (header) + 3 (device_addr + reserved + cells) + cells
 
   ESP_LOGD(TAG, "Temperature sensor count: %d", temperatures);
@@ -933,6 +938,14 @@ void SeplosBmsBle::decode_single_machine_data_(const std::vector<uint8_t> &data)
     float cell_temperature = (seplos_get_16bit(offset + 1 + (i * 2)) - 2731) * 0.1f;
     this->publish_state_(this->temperatures_[i].temperature_sensor_, cell_temperature);
     total_cell_temperature += cell_temperature;
+
+    if (cell_temperature*10 > this->maxtemp10_) {
+      this->maxtemp10_ = cell_temperature*10;
+    }
+    if (this->mintemp10_ < 0 || cell_temperature*10 < this->mintemp10_) {
+      this->mintemp10_ = cell_temperature*10;
+    }
+
     if((i>=2))
     {
       /* ignore t3 */
@@ -963,6 +976,7 @@ void SeplosBmsBle::decode_single_machine_data_(const std::vector<uint8_t> &data)
   offset = 7 + 3 + (cells * 2) + 1 + (temperatures * 2);
 
   float current = (int16_t) seplos_get_16bit(offset + 0) * 0.01f;
+  this->current10_ = current * 10.0f;
   this->publish_state_(this->current_sensor_, current);
 
   snprintf(cell_entry, sizeof(cell_entry), "\"cur\":%d", ((int16_t) seplos_get_16bit(offset + 0))/10);
@@ -970,11 +984,13 @@ void SeplosBmsBle::decode_single_machine_data_(const std::vector<uint8_t> &data)
   strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
 
   float total_voltage = seplos_get_16bit(offset + 2) * 0.01f;
+  this->vbat100_ = total_voltage * 100.0f;
   this->publish_state_(this->total_voltage_sensor_, total_voltage);
 
   snprintf(cell_entry, sizeof(cell_entry), "\"vbat\":%d", (int)seplos_get_16bit(offset + 2)/10);
   strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);
   strncat(json_buffer, ",", sizeof(json_buffer) - strlen(json_buffer) - 1);
+
 
   float power = total_voltage * current;
   this->publish_state_(this->power_sensor_, power);
@@ -1000,6 +1016,10 @@ void SeplosBmsBle::decode_single_machine_data_(const std::vector<uint8_t> &data)
   this->publish_state_(this->state_of_health_sensor_, seplos_get_16bit(offset + 15) * 0.1f);
   this->publish_state_(this->port_voltage_sensor_, seplos_get_16bit(offset + 17) * 0.01f);
 
+  this->soc_ = seplos_get_16bit(offset + 9) * 0.1f;
+  this->soh_ = seplos_get_16bit(offset + 15) * 0.1f;
+  this->capacity_ = seplos_get_16bit(offset + 7) * 0.01f;
+  this->cycles_ = seplos_get_16bit(offset + 13);
 
   snprintf(cell_entry, sizeof(cell_entry), "\"soc\":%d", (int) seplos_get_16bit(offset + 9)/10);
   strncat(json_buffer, cell_entry, sizeof(json_buffer) - strlen(json_buffer) - 1);

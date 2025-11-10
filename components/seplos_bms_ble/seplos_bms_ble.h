@@ -160,7 +160,33 @@ class SeplosBmsBle : public esphome::ble_client::BLEClientNode, public PollingCo
   void set_data_text_sensor(text_sensor::TextSensor *data_text_sensor) { data_text_sensor_ = data_text_sensor; }
   bool is_wrong_mac() { bool tmp = wrong_mac_; wrong_mac_ = false; return tmp; };
 
+  // using for fake hina battery
+  int16_t get_vbat100() { return vbat100_; };
+  int16_t get_current10() { return current10_; };
+  uint8_t get_soc() { return soc_; };
+  uint8_t get_soh() { return soh_; };
+  int16_t get_cycles() { return cycles_; };
+  int16_t get_maxtemp10() { return maxtemp10_; };
+  int16_t get_mintemp10() { return mintemp10_; };
+  int16_t get_maxcellmv() { return maxcellmv_; };
+  int16_t get_mincellmv() { return mincellmv_; };
+  uint8_t get_mincellidx() { return mincellidx_; };
+  uint8_t get_maxcellidx() { return maxcellidx_; };
+  uint16_t get_capacity() { return capacity_; };
+
  protected:
+  int16_t vbat100_{0};
+  int16_t current10_{0};
+  uint8_t soc_{0};
+  uint8_t soh_{0};
+  uint16_t capacity_{0};
+  int16_t cycles_{0};
+  int16_t maxtemp10_{0};
+  int16_t mintemp10_{100};
+  int16_t maxcellmv_{0};
+  int16_t mincellmv_{0};
+  uint8_t mincellidx_{0};
+  uint8_t maxcellidx_{0};
   bool wrong_mac_{false};
   bool online_status_{false};
   bool fastdata_{false};
