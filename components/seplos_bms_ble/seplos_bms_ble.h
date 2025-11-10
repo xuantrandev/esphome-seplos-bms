@@ -182,7 +182,7 @@ class SeplosBmsBle : public esphome::ble_client::BLEClientNode, public PollingCo
   uint16_t capacity_{0};
   int16_t cycles_{0};
   int16_t maxtemp10_{0};
-  int16_t mintemp10_{100};
+  int16_t mintemp10_{1000};
   int16_t maxcellmv_{0};
   int16_t mincellmv_{0};
   uint8_t mincellidx_{0};

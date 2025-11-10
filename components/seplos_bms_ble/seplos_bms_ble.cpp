@@ -942,7 +942,7 @@ void SeplosBmsBle::decode_single_machine_data_(const std::vector<uint8_t> &data)
     if (cell_temperature*10 > this->maxtemp10_) {
       this->maxtemp10_ = cell_temperature*10;
     }
-    if (this->mintemp10_ < 0 || cell_temperature*10 < this->mintemp10_) {
+    if (cell_temperature*10 < this->mintemp10_) {
       this->mintemp10_ = cell_temperature*10;
     }
 
