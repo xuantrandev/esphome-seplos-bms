@@ -93,10 +93,10 @@ void SeplosBmsV3BlePack::decode_pack_pia_data_(const std::vector<uint8_t> &data)
   this->publish_state_(this->pack_cycle_sensor_, (float) seplos_get_16bit(14));
 
   this->vbat100_ = seplos_get_16bit(0);
-  this->current10_ = (int16_t) seplos_get_16bit(2);
+  this->current10_ = (int16_t) seplos_get_16bit(2)/10;
   this->soc_ = seplos_get_16bit(10)/10;
   this->cycles_ = seplos_get_16bit(14);
-  this->capacity_ = seplos_get_16bit(6)*10;
+  this->capacity_ = (int16_t)seplos_get_16bit(6)/100;
   this->soh_ = 100; // default 100 for v3 pack
 #ifdef WEB_VERSION
   char json_buffer[300] = {0};
@@ -192,11 +192,11 @@ void SeplosBmsV3BlePack::decode_pack_pib_data_(const std::vector<uint8_t> &data)
     this->publish_state_(this->pack_temperature_sensors_[i], (seplos_get_16bit(32 + i * 2) - 2731.5f) * 0.1f);
     if(this->maxtemp10_ < (seplos_get_16bit(32 + i * 2) - 2731.5f)*10)
     {
-      this->maxtemp10_ = (seplos_get_16bit(32 + i * 2) - 2731.5f)*10;
+      this->maxtemp10_ = (seplos_get_16bit(32 + i * 2) - 2731.5f);
     }
     if((this->mintemp10_ < 0) || (this->mintemp10_ > (seplos_get_16bit(32 + i * 2) - 2731.5f)*10))
     {
-      this->mintemp10_ = (seplos_get_16bit(32 + i * 2) - 2731.5f)*10;
+      this->mintemp10_ = (seplos_get_16bit(32 + i * 2) - 2731.5f);
     }
 #ifdef WEB_VERSION
     if(i>=2)

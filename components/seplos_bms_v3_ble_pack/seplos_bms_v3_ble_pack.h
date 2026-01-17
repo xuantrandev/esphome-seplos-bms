@@ -56,7 +56,7 @@ class SeplosBmsV3BlePack : public Component, public seplos_bms_v3_ble::SeplosBms
   uint16_t capacity_{0};
   int16_t cycles_{0};
   int16_t maxtemp10_{0};
-  int16_t mintemp10_{1000};
+  int16_t mintemp10_{10000};
   int16_t maxcellmv_{0};
   int16_t mincellmv_{5000};
   uint8_t mincellidx_{0};
