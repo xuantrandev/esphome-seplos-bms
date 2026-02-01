@@ -137,7 +137,7 @@ void SeplosBmsV3BlePack::decode_pack_pia_data_(const std::vector<uint8_t> &data)
   // }
   // ESP_LOGW(TAG, "json: %s", json_buffer);
 #ifdef WEB_VERSION
-  if((textdata != nullptr )) {
+  if((textdata != nullptr && this->fastdata_)) {
     char wrapped_json[2048] = {0};
     snprintf(wrapped_json, sizeof(wrapped_json), "{\"%s\":%s}", this->get_name().c_str(), json_buffer);
     textdata->publish_state(wrapped_json);  
@@ -248,7 +248,7 @@ void SeplosBmsV3BlePack::decode_pack_pib_data_(const std::vector<uint8_t> &data)
   // }
   // ESP_LOGW(TAG, "json: %s", json_buffer);
 #ifdef WEB_VERSION
-  if((textdata != nullptr )) {
+  if((textdata != nullptr && this->fastdata_ )) {
     char wrapped_json[2048] = {0};
     snprintf(wrapped_json, sizeof(wrapped_json), "{\"%s\":%s}", this->get_name().c_str(), json_buffer);
     textdata->publish_state(wrapped_json);  
@@ -313,7 +313,7 @@ void SeplosBmsV3BlePack::decode_pack_pic_data_(const std::vector<uint8_t> &data)
   // }
   // ESP_LOGW(TAG, "json: %s", json_buffer);
 #ifdef WEB_VERSION
-  if((textdata != nullptr )) {
+  if((textdata != nullptr && this->fastdata_)) {
     char wrapped_json[2048] = {0};
     snprintf(wrapped_json, sizeof(wrapped_json), "{\"%s\":%s}", this->get_name().c_str(), json_buffer);
     textdata->publish_state(wrapped_json);  
