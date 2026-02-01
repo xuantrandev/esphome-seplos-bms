@@ -37,3 +37,4 @@ async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
     await ble_client.register_ble_node(var, config)
+    cg.add(var.set_name(config[CONF_ID].id))

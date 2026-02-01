@@ -46,7 +46,11 @@ class SeplosBmsV3BlePack : public Component, public seplos_bms_v3_ble::SeplosBms
   uint8_t get_maxcellidx() { return maxcellidx_; };
   uint16_t get_capacity() { return capacity_; };
   bool get_online_status() { return online_status_; };
-
+  void set_name(const std::string &name) { this->component_name_ = name; }
+  const std::string &get_name() const { return this->component_name_; }
+ 
+private:
+  std::string component_name_;
  protected:
   bool online_status_{false};
   int16_t vbat100_{0};

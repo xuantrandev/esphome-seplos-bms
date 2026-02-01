@@ -64,3 +64,4 @@ async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
     await seplos_bms_v3_ble.register_seplos_bms_v3_ble_device(var, config)
+    cg.add(var.set_name(config[CONF_ID].id))

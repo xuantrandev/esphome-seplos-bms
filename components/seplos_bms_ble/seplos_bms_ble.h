@@ -174,6 +174,12 @@ class SeplosBmsBle : public esphome::ble_client::BLEClientNode, public PollingCo
   uint8_t get_maxcellidx() { return maxcellidx_; };
   uint16_t get_capacity() { return capacity_; };
 
+  void set_name(const std::string &name) { this->component_name_ = name; }
+  const std::string &get_name() const { return this->component_name_; }
+ 
+private:
+  std::string component_name_;
+
  protected:
   int16_t vbat100_{0};
   int16_t current10_{0};

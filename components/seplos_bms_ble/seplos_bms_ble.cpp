@@ -2,6 +2,11 @@
 #include "esphome/core/log.h"
 #include "esphome/core/helpers.h"
 
+#ifdef WEB_VERSION
+#include "esphome/components/template/text_sensor/template_text_sensor.h"
+extern esphome::template_::TemplateTextSensor *textdata;
+#endif
+
 namespace esphome {
 namespace seplos_bms_ble {
 
@@ -1264,11 +1269,21 @@ void SeplosBmsBle::decode_single_machine_data_(const std::vector<uint8_t> &data)
              format_hex_pretty(&data[protection_offset + 24], data.size() - protection_offset - 24 - 3).c_str());
   }
   strncat(json_buffer, "}", sizeof(json_buffer) - strlen(json_buffer) - 1);
-  if((this->data_text_sensor_ != nullptr )&& (this->fastdata_)) {
-    this->data_text_sensor_->publish_state(json_buffer);  
-    // ESP_LOGW(TAG, "send data");
+  // if((this->data_text_sensor_ != nullptr )&& (this->fastdata_)) {
+  //   this->data_text_sensor_->publish_state(json_buffer);  
+  //   // ESP_LOGW(TAG, "send data");
+  // }
+#ifdef WEB_VERSION
+  if((textdata != nullptr )) {
+    char wrapped_json[2048] = {0};
+    snprintf(wrapped_json, sizeof(wrapped_json), "{\"%s\":%s}", this->get_name().c_str(), json_buffer);
+    textdata->publish_state(wrapped_json);  
+    
+    // ESP_LOGW(TAG, "json: %s", wrapped_json);
   }
   ESP_LOGW(TAG, "json: %s", json_buffer);
+#endif
+  
 }
 
 void SeplosBmsBle::dump_config() {  // NOLINT(google-readability-function-size,readability-function-size)
