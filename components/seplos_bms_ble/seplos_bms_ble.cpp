@@ -139,12 +139,14 @@ struct SeplosCommand {
   std::vector<uint8_t> payload;
 };
 
-static const uint8_t SEPLOS_COMMAND_QUEUE_SIZE = 4;
+// static const uint8_t SEPLOS_COMMAND_QUEUE_SIZE = 4;
+static const uint8_t SEPLOS_COMMAND_QUEUE_SIZE = 1;
 static const SeplosCommand SEPLOS_COMMAND_QUEUE[SEPLOS_COMMAND_QUEUE_SIZE] = {
-    {SEPLOS_CMD_GET_SETTINGS, {0x00}},
-    {SEPLOS_CMD_GET_MANUFACTURER_INFO, {}},
+    // {SEPLOS_CMD_GET_SETTINGS, {0x00}},
+    // {SEPLOS_CMD_GET_MANUFACTURER_INFO, {}},
     {SEPLOS_CMD_GET_SINGLE_MACHINE_DATA, {0x00}},
-    {SEPLOS_CMD_GET_PARALLEL_DATA, {}}};
+    // {SEPLOS_CMD_GET_PARALLEL_DATA, {}}
+  };
 
 void SeplosBmsBle::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if,
                                        esp_ble_gattc_cb_param_t *param) {
