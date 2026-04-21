@@ -75,11 +75,9 @@ CONFIG_SCHEMA = cv.Schema(
         ),
         cv.Optional(
             CONF_DATA
-        ): text_sensor.TEXT_SENSOR_SCHEMA.extend(
-            {
-                cv.GenerateID(): cv.declare_id(text_sensor.TextSensor),
-                # cv.Optional(CONF_ICON, default=ICON_TIMELAPSE): cv.icon,
-            }
+        ): text_sensor.text_sensor_schema(
+            text_sensor.TextSensor,
+            # icon=ICON_TIMELAPSE,
         ),
     }
 )
