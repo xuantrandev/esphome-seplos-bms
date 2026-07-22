@@ -49,6 +49,9 @@ class SeplosBmsV3BlePack : public Component, public seplos_bms_v3_ble::SeplosBms
   bool get_online_status() { return online_status_; };
   void set_name(const std::string &name) { this->component_name_ = name; }
   const std::string &get_name() const { return this->component_name_; }
+  /* fun fill external concept*/
+  uint64_t get_mac(){return 0;};
+  bool is_wrong_mac(){ return false; }  // Optional override for BMS MAC validation
  
 private:
   std::string component_name_;
