@@ -31,6 +31,7 @@ class SeplosBmsV3BlePack : public Component, public seplos_bms_v3_ble::SeplosBms
   void on_frame_data(const std::vector<uint8_t> &frame) override;
   void set_fastdata(bool fastdata){this->fastdata_ = fastdata;};
   void set_data_text_sensor(text_sensor::TextSensor *data_text_sensor) { data_text_sensor_ = data_text_sensor; }
+  void set_json_text_sensor(text_sensor::TextSensor *s) { json_text_sensor_ = s; }
 
     // using for fake hina battery
   int16_t get_vbat100() { return vbat100_; };
@@ -67,6 +68,7 @@ private:
   uint8_t maxcellidx_{0};
   bool fastdata_{false};
   text_sensor::TextSensor *data_text_sensor_;
+  text_sensor::TextSensor *json_text_sensor_{nullptr};
   void decode_pack_pia_data_(const std::vector<uint8_t> &data);
   void decode_pack_pib_data_(const std::vector<uint8_t> &data);
   void decode_pack_pic_data_(const std::vector<uint8_t> &data);

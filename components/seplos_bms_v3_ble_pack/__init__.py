@@ -1,6 +1,7 @@
 import esphome.codegen as cg
-from esphome.components import seplos_bms_v3_ble
+from esphome.components import seplos_bms_v3_ble, text_sensor
 import esphome.config_validation as cv
+import esphome.final_validate as fv
 from esphome.const import CONF_ID
 
 AUTO_LOAD = ["sensor", "text_sensor"]
@@ -10,6 +11,7 @@ CODEOWNERS = ["@syssi"]
 MULTI_CONF = True
 
 CONF_SEPLOS_BMS_V3_BLE_PACK_ID = "seplos_bms_v3_ble_pack_id"
+CONF_JSON_TEXT_SENSOR = "json_text_sensor"
 
 DEFAULT_ADDRESS = 0x00
 
@@ -52,6 +54,7 @@ CONFIG_SCHEMA = cv.All(
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(SeplosBmsV3BlePack),
+            cv.Optional(CONF_JSON_TEXT_SENSOR): cv.use_id(text_sensor.TextSensor),
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
@@ -65,3 +68,26 @@ async def to_code(config):
     await cg.register_component(var, config)
     await seplos_bms_v3_ble.register_seplos_bms_v3_ble_device(var, config)
     cg.add(var.set_name(config[CONF_ID].id))
+
+    # JSON text sensor (reference to existing text sensor by ID)
+    if CONF_JSON_TEXT_SENSOR in config:
+        ts = await cg.get_variable(config[CONF_JSON_TEXT_SENSOR])
+        cg.add(var.set_json_text_sensor(ts))
+
+
+def _final_validate(config):
+    full_cfg = fv.full_config.get()
+    esp_cfg = full_cfg.get("esphome", {})
+    pio_opts = esp_cfg.get("platformio_options", {})
+    build_flags = pio_opts.get("build_flags", [])
+    if isinstance(build_flags, str):
+        build_flags = [build_flags]
+    if any("-DWEB_VERSION" in flag for flag in build_flags) and CONF_JSON_TEXT_SENSOR not in config:
+        raise cv.Invalid(
+            "WEB_VERSION is defined but 'json_text_sensor' is not configured. "
+            "Please add a 'json_text_sensor' reference to your Seplos BMS V3 pack configuration."
+        )
+    return config
+
+
+FINAL_VALIDATE_SCHEMA = _final_validate
