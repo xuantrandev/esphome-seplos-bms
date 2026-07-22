@@ -52,6 +52,7 @@ class SeplosBmsV3BlePack : public Component, public seplos_bms_v3_ble::SeplosBms
   /* fun fill external concept*/
   uint64_t get_mac(){return 0;};
   bool is_wrong_mac(){ return false; }  // Optional override for BMS MAC validation
+  void changemac(uint64_t mac){};  // Optional override for BMS MAC change
  
 private:
   std::string component_name_;
